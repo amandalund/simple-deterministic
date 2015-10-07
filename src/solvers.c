@@ -11,7 +11,6 @@ void solve(double ***phi0, Parameters *params)
   double t1, t2, t3, t4, t5, t6;
   int i, j, k, l, m;
   int n;
-  FILE *fp = NULL;
 
   c = params->D/(params->h*params->h);
   d = 1/(6*c + params->macro_xs_a);
@@ -57,7 +56,6 @@ void solve(double ***phi0, Parameters *params)
               else if(params->bc == PERIODIC) t6 = phi[i][j][params->n_grid-1];
             }
 
-            // set terms
             if(t1 == FLAG) t1 = phi[i+1][j][k];
             if(t2 == FLAG) t2 = phi[i-1][j][k];
             if(t3 == FLAG) t3 = phi[i][j+1][k];
@@ -86,7 +84,6 @@ void solve(double ***phi0, Parameters *params)
     k_prev = params->k;
     params->k = k_prev*s/s0;
     memcpy(phi0[0][0], phi[0][0], n*sizeof(double));
-    if(params->print == 1) print_slice(phi, params, fp);
     if(err_outer/n < params->thresh && fabs(params->k - k_prev)/params->k < params->thresh) break;
     if(l == params->max_outer - 1) printf("WARNING: did not converge in %d outer iterations\n", params->max_outer);
   }

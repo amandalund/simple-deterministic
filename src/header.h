@@ -10,6 +10,8 @@
 #include<string.h>
 
 #define FLAG -13
+#define TRUE 1
+#define FALSE 0
 
 // Boundary conditions
 #define VACUUM 0
@@ -32,7 +34,8 @@ typedef struct Parameters_{
   int max_inner;             // maximum number of inner iterations
   int max_outer;             // maximum number of outer iterations
   double thresh;             // threshold for termination condition
-  int print;                 // whether to print output
+  int write_flux;            // whether to write solution
+  char *flux_file;           // path to write solution to
 } Parameters;
 
 // initialize.c function prototypes
@@ -46,13 +49,13 @@ double ***matrix3D(size_t l, size_t m, size_t n);
 void free_matrix3D(double ***m);
 
 // io.c function prototypes
-void print_slice(double ***phi, Parameters *params, FILE *fp);
 void parse_params(char *filename, Parameters *params);
 void print_params(Parameters *params);
 void print_error(char *message);
 void border_print(void);
 void fancy_int(long a);
 void center_print(const char *s, int width);
+void write_flux(double ***phi, Parameters *params, FILE *fp);
 
 // solvers.c function prototypes
 void solve(double ***phi0, Parameters *params);

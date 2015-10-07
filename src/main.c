@@ -11,18 +11,17 @@ int main(int argc, char *argv[])
   parse_params("parameters", params);
   print_params(params);
 
-  // Open file for output
-  if(params->print == 1){
-    fp = fopen("output", "wb");
-    fclose(fp);
-  }
-
   // Initial guess of flux
   phi = init_flux(params);
 
   solve(phi, params);
 
   printf("keff = %f\n", params->k);
+
+  // Write solution
+  if(params->write_flux == TRUE){
+    write_flux(phi, params, fp);
+  }
 
   // Free memory
   free_flux(phi);

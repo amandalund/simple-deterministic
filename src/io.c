@@ -1,20 +1,5 @@
 #include "header.h"
 
-void print_slice(double ***phi, Parameters *params, FILE *fp)
-{
-  int i, j, k;
-
-  fp = fopen("output", "a");
-  i = params->n_grid/2;
-  for(j=1; j<params->n_grid+1; j++){
-    for(k=1; k<params->n_grid+1; k++){
-      fprintf(fp, "%f ", phi[i][j][k]);
-    }
-    fprintf(fp, "\n");
-  }
-  fclose(fp);
-}
-
 void parse_params(char *filename, Parameters *params)
 {
   char line[256], *s;
@@ -27,24 +12,50 @@ void parse_params(char *filename, Parameters *params)
     if(s == NULL) continue;
 
     // Set parameters
-    else if(strcmp(s, "n_grid") == 0) params->n_grid = atoi(strtok(NULL, "=\n"));
-    else if(strcmp(s, "h") == 0) params->h = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "macro_xs_f") == 0) params->macro_xs_f = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "macro_xs_a") == 0) params->macro_xs_a = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "macro_xs_e") == 0) params->macro_xs_e = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "mu") == 0) params->mu = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "nu") == 0) params->nu = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "n_grid") == 0)
+      params->n_grid = atoi(strtok(NULL, "=\n"));
+    else if(strcmp(s, "h") == 0)
+      params->h = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "macro_xs_f") == 0)
+      params->macro_xs_f = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "macro_xs_a") == 0)
+      params->macro_xs_a = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "macro_xs_e") == 0)
+      params->macro_xs_e = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "mu") == 0)
+      params->mu = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "nu") == 0)
+      params->nu = atof(strtok(NULL, "=\n"));
     else if(strcmp(s, "bc") == 0){
       s = strtok(NULL, "=\n");
-      if(strcasecmp(s, "vacuum") == 0) params->bc = 0;
-      else if(strcasecmp(s, "reflective") == 0) params->bc = 1;
-      else if(strcasecmp(s, "periodic") == 0) params->bc = 2;
+      if(strcasecmp(s, "vacuum") == 0)
+        params->bc = 0;
+      else if(strcasecmp(s, "reflective") == 0)
+        params->bc = 1;
+      else if(strcasecmp(s, "periodic") == 0)
+        params->bc = 2;
       else print_error("Invalid boundary condition");
     }
-    else if(strcmp(s, "max_inner") == 0) params->max_inner = atoi(strtok(NULL, "=\n"));
-    else if(strcmp(s, "max_outer") == 0) params->max_outer = atoi(strtok(NULL, "=\n"));
-    else if(strcmp(s, "thresh") == 0) params->thresh = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "print") == 0) params->print = atoi(strtok(NULL, "=\n"));
+    else if(strcmp(s, "max_inner") == 0)
+      params->max_inner = atoi(strtok(NULL, "=\n"));
+    else if(strcmp(s, "max_outer") == 0)
+      params->max_outer = atoi(strtok(NULL, "=\n"));
+    else if(strcmp(s, "thresh") == 0)
+      params->thresh = atof(strtok(NULL, "=\n"));
+    else if(strcmp(s, "write_flux") == 0){
+      s = strtok(NULL, "=\n");
+      if(strcasecmp(s, "true") == 0)
+        params->write_flux = TRUE;
+      else if(strcasecmp(s, "false") == 0)
+        params->write_flux = FALSE;
+      else
+        print_error("Invalid option for parameter 'write_flux': must be 'true' or 'false'");
+    }
+    else if(strcmp(s, "flux_file") == 0){
+      s = strtok(NULL, "=\n");
+      params->flux_file = malloc(strlen(s)*sizeof(char)+1);
+      strcpy(params->flux_file, s);
+    }
     else printf("Unknown value '%s' in config file.\n", s);
   }
 
@@ -55,6 +66,8 @@ void parse_params(char *filename, Parameters *params)
   params->k = 1;
 
   // Validate inputs
+  if(params->write_flux == TRUE && params->flux_file == NULL)
+    params->flux_file = "flux.dat";
   if(params->n_grid <= 0)
     print_error("Number of grid points must be greater than zero");
   if(params->h <= 0)
@@ -131,4 +144,25 @@ void center_print(const char *s, int width)
   }
   fputs(s, stdout);
   fputs("\n", stdout);
+}
+
+// Prints solution to file
+void write_flux(double ***phi, Parameters *params, FILE *fp)
+{
+  int i, j, k;
+
+  fp = fopen(params->flux_file, "w");
+
+  for(i=0; i<params->n_grid; i++){
+    for(j=0; j<params->n_grid; j++){
+      for(k=0; k<params->n_grid; k++){
+        fprintf(fp, "%e ", phi[i][j][k]);
+      }
+      fprintf(fp, "\n");
+    }
+  }
+
+  fclose(fp);
+
+  return;
 }

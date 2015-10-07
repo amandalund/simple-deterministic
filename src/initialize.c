@@ -19,7 +19,8 @@ Parameters *set_default_params(void)
   params->max_inner = 1000;
   params->max_outer = 1000;
   params->thresh = 0.00001;
-  params->print = 0;
+  params->write_flux = 0;
+  params->flux_file = NULL;
 
   return params;
 }
