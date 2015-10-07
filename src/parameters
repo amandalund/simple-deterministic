@@ -1,0 +1,27 @@
+###################################################################
+# Deterministic transport parameters
+###################################################################
+# n_grid: number of grid points in each dimension
+# h: grid spacing
+# macro_xs_f: fission macroscopic cross section of material
+# macro_xs_a: absorption macroscopic cross section of material
+# macro_xs_e: elastic macroscopic cross section of material
+# mu: average cos of scattering angle in scattering collision
+# bc: boundary conditions (vacuum, periodic)
+# max_inner: maximum number of inner iterations
+# max_outer: maximum number of outer iterations
+# thresh: stopping condition
+# print: whether to print output (0 or 1)
+###################################################################
+n_grid=20
+h=0.5
+macro_xs_f=2.29
+macro_xs_a=3.42
+macro_xs_e=2.29
+mu=0.0
+nu=1.5
+bc=vacuum
+max_inner=1000
+max_outer=10000
+thresh=0.000001
+print=0
