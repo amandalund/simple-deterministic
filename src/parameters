@@ -1,18 +1,19 @@
 ###################################################################
 # Deterministic transport parameters
 ###################################################################
-# n_grid: number of grid points in each dimension
-# h: grid spacing
-# macro_xs_f: fission macroscopic cross section of material
-# macro_xs_a: absorption macroscopic cross section of material
-# macro_xs_e: elastic macroscopic cross section of material
-# mu: average cos of scattering angle in scattering collision
-# bc: boundary conditions (vacuum, periodic)
-# max_inner: maximum number of inner iterations
-# max_outer: maximum number of outer iterations
-# thresh: stopping condition
-# write_flux: whether to write solution (true or false)
-# flux_file: path to write solution to
+# n_grid (-g): number of grid points in each dimension
+# h (-h): grid spacing
+# macro_xs_f (-f): fission macroscopic cross section of material
+# macro_xs_a (-a): absorption macroscopic cross section of material
+# macro_xs_e (-e): elastic macroscopic cross section of material
+# mu (-m): average cos of scattering angle in scattering collision
+# nu (-n): average number of fission neutrons produced
+# bc (-c): boundary conditions (vacuum, periodic)
+# max_inner (-i): maximum number of inner iterations
+# max_outer (-o): maximum number of outer iterations
+# thresh (-t): stopping condition
+# write_flux (-w): whether to write solution (true or false)
+# flux_file (-p): path to write solution to
 ###################################################################
 n_grid=20
 h=0.5
@@ -23,7 +24,7 @@ mu=0.0
 nu=1.5
 bc=vacuum
 max_inner=1000
-max_outer=10000
+max_outer=1000
 thresh=0.000001
 write_flux=false
 flux_file=flux.dat

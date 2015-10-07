@@ -29,11 +29,9 @@ void parse_params(char *filename, Parameters *params)
     else if(strcmp(s, "bc") == 0){
       s = strtok(NULL, "=\n");
       if(strcasecmp(s, "vacuum") == 0)
-        params->bc = 0;
-      else if(strcasecmp(s, "reflective") == 0)
-        params->bc = 1;
+        params->bc = VACUUM;
       else if(strcasecmp(s, "periodic") == 0)
-        params->bc = 2;
+        params->bc = PERIODIC;
       else print_error("Invalid boundary condition");
     }
     else if(strcmp(s, "max_inner") == 0)
@@ -59,6 +57,117 @@ void parse_params(char *filename, Parameters *params)
     else printf("Unknown value '%s' in config file.\n", s);
   }
 
+  return;
+}
+
+void read_CLI(int argc, char *argv[], Parameters *params)
+{
+  int i;
+  char *arg;
+
+  // Collect raw input
+  for(i=1; i<argc; i++){
+    arg = argv[i];
+
+    // Number of grid points (-g)
+    if(strcmp(arg, "-g") == 0){
+      if(++i < argc) params->n_grid = atoi(argv[i]);
+      else print_error("Error reading command line input '-g'");
+    }
+
+    // Boundary conditions (-c)
+    else if(strcmp(arg, "-c") == 0){
+      if(++i < argc){
+        if(strcasecmp(argv[i], "vacuum") == 0)
+          params->bc = VACUUM;
+        else if(strcasecmp(argv[i], "periodic") == 0)
+          params->bc = PERIODIC;
+        else
+          print_error("Invalid boundary condition");
+      }
+      else print_error("Error reading command line input '-c'");
+    }
+
+    // Grid spacing (-h)
+    else if(strcmp(arg, "-h") == 0){
+      if(++i < argc) params->h = atof(argv[i]);
+      else print_error("Error reading command line input '-h'");
+    }
+
+    // Absorption macro xs (-a)
+    else if(strcmp(arg, "-a") == 0){
+      if(++i < argc) params->macro_xs_a = atof(argv[i]);
+      else print_error("Error reading command line input '-a'");
+    }
+
+    // Elastic macro xs (-e)
+    else if(strcmp(arg, "-e") == 0){
+      if(++i < argc) params->macro_xs_e = atof(argv[i]);
+      else print_error("Error reading command line input '-e'");
+    }
+
+    // Fission macro xs (-f)
+    else if(strcmp(arg, "-f") == 0){
+      if(++i < argc) params->macro_xs_f = atof(argv[i]);
+      else print_error("Error reading command line input '-f'");
+    }
+
+    // Average cos of scattering angle (-m)
+    else if(strcmp(arg, "-m") == 0){
+      if(++i < argc) params->mu = atof(argv[i]);
+      else print_error("Error reading command line input '-m'");
+    }
+
+    // Average number of fission neutrons produced (-n)
+    else if(strcmp(arg, "-n") == 0){
+      if(++i < argc) params->nu = atof(argv[i]);
+      else print_error("Error reading command line input '-n'");
+    }
+
+    // Maximum number of inner iterations (-i)
+    else if(strcmp(arg, "-i") == 0){
+      if(++i < argc) params->max_inner = atoi(argv[i]);
+      else print_error("Error reading command line input '-i'");
+    }
+
+    // Maximum number of outer iterations (-o)
+    else if(strcmp(arg, "-o") == 0){
+      if(++i < argc) params->max_outer = atoi(argv[i]);
+      else print_error("Error reading command line input '-o'");
+    }
+
+    // Stopping condition (-t)
+    else if(strcmp(arg, "-t") == 0){
+      if(++i < argc) params->thresh = atof(argv[i]);
+      else print_error("Error reading command line input '-t'");
+    }
+
+    // Whether to output flux (-w)
+    else if(strcmp(arg, "-w") == 0){
+      if(++i < argc){
+        if(strcasecmp(argv[i], "true") == 0)
+          params->write_flux = TRUE;
+        else if(strcasecmp(argv[i], "false") == 0)
+          params->write_flux = FALSE;
+        else
+          print_error("Invalid option for parameter 'write_flux': must be 'true' or 'false'");
+      }
+      else print_error("Error reading command line input '-w'");
+    }
+
+    // Path to write flux to (-p)
+    else if(strcmp(arg, "-p") == 0){
+      if(++i < argc){
+        if(params->flux_file != NULL) free(params->flux_file);
+        params->flux_file = malloc(strlen(argv[i])*sizeof(char)+1);
+        strcpy(params->flux_file, argv[i]);
+      }
+      else print_error("Error reading command line input '-p'");
+    }
+
+    else print_error("Error reading command line input");
+  }
+
   // Set remaining parameters
   params->L = params->h*params->n_grid;
   params->macro_xs_t = params->macro_xs_f + params->macro_xs_a + params->macro_xs_e;
@@ -82,6 +191,8 @@ void parse_params(char *filename, Parameters *params)
     print_error("Maximum number of iterations must be greater than zero");
   if(params->thresh <= 0)
     print_error("Threshold must be greater than zero");
+
+  return;
 }
 
 void print_params(Parameters *params)
