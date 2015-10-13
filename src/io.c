@@ -198,9 +198,8 @@ void read_CLI(int argc, char *argv[], Parameters *params)
 void print_params(Parameters *params)
 {
   char *bc = NULL;
-  if(params->bc == 0) bc = "Vacuum";
-  else if(params->bc == 1) bc = "Reflective";
-  else if(params->bc == 2) bc = "Periodic";
+  if(params->bc == VACUUM) bc = "Vacuum";
+  else if(params->bc == PERIODIC) bc = "Periodic";
   border_print();
   center_print("INPUT SUMMARY", 79);
   border_print();
@@ -212,7 +211,7 @@ void print_params(Parameters *params)
   printf("Diffusion coefficient:                %f\n", params->D);
   printf("Maximum number of inner iterations:   %d\n", params->max_inner);
   printf("Maximum number of outer iterations:   %d\n", params->max_outer);
-  printf("Stopping threshold:                   %f\n", params->thresh);
+  printf("Stopping threshold:                   %e\n", params->thresh);
   printf("Boundary conditions:                  %s\n", bc);
   border_print();
 }
