@@ -1,7 +1,7 @@
 #include "header.h"
 
 // Gauss-Seidel iterative solver
-void solve(double ***phi0, Parameters *params)
+void solve(double ****phi0, Parameters *params)
 {
   double c, d;
   double ***phi;
@@ -12,6 +12,7 @@ void solve(double ***phi0, Parameters *params)
   double norm;                    // flux normalization (||phi||_inf = max(phi))
   int i, j, k;                    // indices over flux elements
   int l, m;                       // indices over outer iterations, inner iterations
+  int g;                          // index over energy groups
   int n;                          // total number of mesh elements
 
   c = params->D/(params->h*params->h);
@@ -24,6 +25,7 @@ void solve(double ***phi0, Parameters *params)
     err_outer = s = s0 = 0;
     memcpy(phi[0][0], phi0[0][0], n*sizeof(double));
 
+    // Solve M*phi^(n+1) = (1/k)*S^n
     for(m=0; m<params->max_inner; m++){
 
       err_inner = norm = 0;

@@ -3,7 +3,7 @@
 int main(int argc, char *argv[])
 {
   Parameters *params; // user defined parameters
-  double ***phi;      // flux array
+  double ****phi;      // flux array
   FILE *fp = NULL;    // output file
 
   // Get inputs
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
   // Free memory
   free_flux(phi);
-  free(params);
+  free_params(params);
 
   return 0;
 }

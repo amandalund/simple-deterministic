@@ -26,8 +26,43 @@ double ***matrix3D(size_t l, size_t m, size_t n)
   return a;
 }
 
+double ****matrix4D(size_t l, size_t m, size_t n, size_t o)
+{
+  int i, j, k;
+
+  double *d = malloc(l*m*n*o*sizeof(double));
+  double **c = malloc(l*m*n*sizeof(double*));
+  double ***b = malloc(l*m*sizeof(double**));
+  double ****a = malloc(l*sizeof(double***));
+
+  for(i=0; i<l; i++){
+    a[i] = b;
+    b += m;
+    for(j=0; j<m; j++){
+      a[i][j] = c;
+      c += n;
+      for(k=0; k<n; k++){
+        a[i][j][k] = d;
+        d += o;
+      }
+    }
+  }
+
+  return a;
+}
+
 void free_matrix3D(double ***m)
 {
+  free(m[0][0]);
+  free(m[0]);
+  free(m);
+
+  return;
+}
+
+void free_matrix4D(double ****m)
+{
+  free(m[0][0][0]);
   free(m[0][0]);
   free(m[0]);
   free(m);
