@@ -60,5 +60,6 @@ void write_flux(double ***phi, Parameters *params, FILE *fp);
 
 // solvers.c function prototypes
 void solve(double ***phi0, Parameters *params);
+void solve_inner(double ***phi, double ***phi0, Parameters *params, double *norm);
 
 #endif
