@@ -75,7 +75,6 @@ void solve_inner(double ****phi, double ***S, Parameters *params, int g)
   n = params->n_grid*params->n_grid*params->n_grid;
   c = params->D[g]/(params->h*params->h);
   d = 1/(6*c + params->macro_xs_r[g]);
-//  d = 1/(6*c + params->macro_xs_a[g]);
 
   for(m=0; m<params->max_inner; m++){
 
