@@ -14,11 +14,11 @@ void solve(double ***phi0, Parameters *params)
 
   n = params->n_grid*params->n_grid*params->n_grid;
   phi = matrix3D(params->n_grid, params->n_grid, params->n_grid);
+  memcpy(phi[0][0], phi0[0][0], n*sizeof(double));
 
   for(l=0; l<params->max_outer; l++){
 
     err_outer = s = s0 = 0;
-    memcpy(phi[0][0], phi0[0][0], n*sizeof(double));
 
     solve_inner(phi, phi0, params, &norm);
 
