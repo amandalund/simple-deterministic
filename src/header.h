@@ -22,7 +22,7 @@ typedef struct Parameters_{
   int n_grid;                // number of grid points in x, y, and z
   double L;                  // detector length
   double h;                  // grid spacing
-  double G;                  // number of energy groups
+  int G;                     // number of energy groups
   double *macro_xs_a;        // absorption macro xs
   double **macro_xs_e;       // scattering macro xs
   double *macro_xs_f;        // fission macro xs
@@ -39,13 +39,14 @@ typedef struct Parameters_{
   double thresh;             // threshold for termination condition
   int write_flux;            // whether to write solution
   char *flux_file;           // path to write solution to
+  char *group_file;          // path to read group constants from
 } Parameters;
 
 // initialize.c function prototypes
 Parameters *set_default_params(void);
-double ***init_flux(Parameters *params);
+double ****init_flux(Parameters *params);
 void free_params(Parameters *params);
-void free_flux(double ***phi);
+void free_flux(double ****phi);
 
 // utils.c function prototypes
 double timer(void);
@@ -57,14 +58,17 @@ void free_matrix4D(double ****m);
 // io.c function prototypes
 void parse_params(char *filename, Parameters *params);
 void read_CLI(int argc, char *argv[], Parameters *params);
+void set_group_constants(Parameters *params);
 void print_params(Parameters *params);
 void print_error(char *message);
 void border_print(void);
 void fancy_int(long a);
 void center_print(const char *s, int width);
-void write_flux(double ***phi, Parameters *params, FILE *fp);
+void write_flux(double ****phi, Parameters *params, FILE *fp);
 
 // solvers.c function prototypes
-void solve(double ****phi0, Parameters *params);
+void solve(double ****phi, Parameters *params);
+void solve_inner(double ****phi, double ***S, Parameters *params, int g);
+void compute_source(double ****phi, double ***S, Parameters *params, double *max);
 
 #endif

@@ -3,7 +3,7 @@
 int main(int argc, char *argv[])
 {
   Parameters *params; // user defined parameters
-  double ****phi;      // flux array
+  double ****phi;     // flux array
   FILE *fp = NULL;    // output file
 
   // Get inputs

@@ -11,21 +11,23 @@ void parse_params(char *filename, Parameters *params)
     s = strtok(line, "=");
     if(s == NULL) continue;
 
-    // Set parameters
+    // Number of grid points (n_grid)
     else if(strcmp(s, "n_grid") == 0)
       params->n_grid = atoi(strtok(NULL, "=\n"));
+
+    // Grid spacing (h)
     else if(strcmp(s, "h") == 0)
       params->h = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "macro_xs_f") == 0)
-      params->macro_xs_f = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "macro_xs_a") == 0)
-      params->macro_xs_a = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "macro_xs_e") == 0)
-      params->macro_xs_e = atof(strtok(NULL, "=\n"));
+
+    // Number of energy groups (groups)
+    else if(strcmp(s, "groups") == 0)
+      params->G = atoi(strtok(NULL, "=\n"));
+
+    // Average cos of scattering angle (mu)
     else if(strcmp(s, "mu") == 0)
       params->mu = atof(strtok(NULL, "=\n"));
-    else if(strcmp(s, "nu") == 0)
-      params->nu = atof(strtok(NULL, "=\n"));
+
+    // Boundary conditions (bc)
     else if(strcmp(s, "bc") == 0){
       s = strtok(NULL, "=\n");
       if(strcasecmp(s, "vacuum") == 0)
@@ -34,12 +36,20 @@ void parse_params(char *filename, Parameters *params)
         params->bc = PERIODIC;
       else print_error("Invalid boundary condition");
     }
+
+    // Maximum number of inner iterations (max_inner)
     else if(strcmp(s, "max_inner") == 0)
       params->max_inner = atoi(strtok(NULL, "=\n"));
+
+    // Maximum number of outer iterations (max_outer)
     else if(strcmp(s, "max_outer") == 0)
       params->max_outer = atoi(strtok(NULL, "=\n"));
+
+    // Stopping condition (thresh)
     else if(strcmp(s, "thresh") == 0)
       params->thresh = atof(strtok(NULL, "=\n"));
+
+    // Whether to output flux (write_flux)
     else if(strcmp(s, "write_flux") == 0){
       s = strtok(NULL, "=\n");
       if(strcasecmp(s, "true") == 0)
@@ -49,11 +59,22 @@ void parse_params(char *filename, Parameters *params)
       else
         print_error("Invalid option for parameter 'write_flux': must be 'true' or 'false'");
     }
+
+    // Path to write flux to (flux_file)
     else if(strcmp(s, "flux_file") == 0){
       s = strtok(NULL, "=\n");
       params->flux_file = malloc(strlen(s)*sizeof(char)+1);
       strcpy(params->flux_file, s);
     }
+
+    // Path to read group constants from (group_file)
+    else if(strcmp(s, "group_file") == 0){
+      s = strtok(NULL, "=\n");
+      params->group_file = malloc(strlen(s)*sizeof(char)+1);
+      strcpy(params->group_file, s);
+    }
+
+    // Unknown option
     else printf("Unknown value '%s' in config file.\n", s);
   }
 
@@ -94,34 +115,16 @@ void read_CLI(int argc, char *argv[], Parameters *params)
       else print_error("Error reading command line input '-h'");
     }
 
-    // Absorption macro xs (-a)
-    else if(strcmp(arg, "-a") == 0){
-      if(++i < argc) params->macro_xs_a = atof(argv[i]);
-      else print_error("Error reading command line input '-a'");
-    }
-
-    // Elastic macro xs (-e)
+    // Number of energy groups (-e)
     else if(strcmp(arg, "-e") == 0){
-      if(++i < argc) params->macro_xs_e = atof(argv[i]);
+      if(++i < argc) params->G = atoi(argv[i]);
       else print_error("Error reading command line input '-e'");
-    }
-
-    // Fission macro xs (-f)
-    else if(strcmp(arg, "-f") == 0){
-      if(++i < argc) params->macro_xs_f = atof(argv[i]);
-      else print_error("Error reading command line input '-f'");
     }
 
     // Average cos of scattering angle (-m)
     else if(strcmp(arg, "-m") == 0){
       if(++i < argc) params->mu = atof(argv[i]);
       else print_error("Error reading command line input '-m'");
-    }
-
-    // Average number of fission neutrons produced (-n)
-    else if(strcmp(arg, "-n") == 0){
-      if(++i < argc) params->nu = atof(argv[i]);
-      else print_error("Error reading command line input '-n'");
     }
 
     // Maximum number of inner iterations (-i)
@@ -165,13 +168,27 @@ void read_CLI(int argc, char *argv[], Parameters *params)
       else print_error("Error reading command line input '-p'");
     }
 
+    // Path to read group constants from (-q)
+    else if(strcmp(arg, "-q") == 0){
+      if(++i < argc){
+        if(params->group_file != NULL) free(params->group_file);
+        params->group_file = malloc(strlen(argv[i])*sizeof(char)+1);
+        strcpy(params->group_file, argv[i]);
+      }
+      else print_error("Error reading command line input '-p'");
+    }
+
+    // Unknown option
     else print_error("Error reading command line input");
   }
 
+  // Read in group constants from separate file
+  if(params->group_file == NULL)
+    print_error("Must specify file to read in group constants");
+  set_group_constants(params);
+
   // Set remaining parameters
   params->L = params->h*params->n_grid;
-  params->macro_xs_t = params->macro_xs_f + params->macro_xs_a + params->macro_xs_e;
-  params->D = 1/(3*params->macro_xs_t - params->mu*params->macro_xs_e);
   params->k = 1;
 
   // Validate inputs
@@ -181,16 +198,111 @@ void read_CLI(int argc, char *argv[], Parameters *params)
     print_error("Number of grid points must be greater than zero");
   if(params->h <= 0)
     print_error("Grid spacing must be greater than zero");
-  if(params->macro_xs_f < 0 || params->macro_xs_a < 0 || params->macro_xs_e < 0)
-    print_error("Macroscopic cross section values cannot be negative");
+  if(params->G <= 0)
+    print_error("Number of energy groups must be greater than zero");
   if(params->mu < -1 || params->mu > 1)
     print_error("mu must be in range [-1, 1]");
-  if(params->nu < 0)
-    print_error("nu cannot be negative");
   if(params->max_inner <= 0 || params->max_outer <= 0)
     print_error("Maximum number of iterations must be greater than zero");
   if(params->thresh <= 0)
     print_error("Threshold must be greater than zero");
+
+  return;
+}
+
+void set_group_constants(Parameters *params)
+{
+  char line[512], *s;
+  FILE *fp = fopen(params->group_file, "r");
+  int i, j;
+  double *arr;
+  double *macro_xs_e;
+
+  // Allocate memory for group constants
+  params->macro_xs_f = calloc(params->G, sizeof(double));
+  params->macro_xs_a = calloc(params->G, sizeof(double));
+  params->macro_xs_e = malloc(params->G*sizeof(double*));
+  arr = calloc(params->G*params->G, sizeof(double));
+  for(i=0; i<params->G; i++){
+    params->macro_xs_e[i] = arr;
+    arr += params->G;
+  }
+  params->macro_xs_t = calloc(params->G, sizeof(double));
+  params->macro_xs_r = calloc(params->G, sizeof(double));
+  params->nu = calloc(params->G, sizeof(double));
+  params->D = calloc(params->G, sizeof(double));
+  params->chi = calloc(params->G, sizeof(double));
+
+  while((s = fgets(line, sizeof(line), fp)) != NULL){
+
+    s = strtok(line, "\n");
+
+    // Average number of fission neutrons produced
+    if(strcmp(s, "nu") == 0){
+      s = fgets(line, sizeof(line), fp);
+      s = strtok(line, " \n");
+      for(i=0; i<params->G; i++){
+        params->nu[i] = atof(s);
+        s = strtok(NULL, " \n");
+      }
+    }
+
+    // Probability of fission neutron being born in group
+    else if(strcmp(s, "chi") == 0){
+      s = fgets(line, sizeof(line), fp);
+      s = strtok(line, " \n");
+      for(i=0; i<params->G; i++){
+        params->chi[i] = atof(s);
+        s = strtok(NULL, " \n");
+      }
+    }
+
+    // Fission cross section
+    else if(strcmp(s, "macro_xs_f") == 0){
+      s = fgets(line, sizeof(line), fp);
+      s = strtok(line, " \n");
+      for(i=0; i<params->G; i++){
+        params->macro_xs_f[i] = atof(s);
+        s = strtok(NULL, " \n");
+      }
+    }
+
+    // Absorption cross section
+    else if(strcmp(s, "macro_xs_a") == 0){
+      s = fgets(line, sizeof(line), fp);
+      s = strtok(line, " \n");
+      for(i=0; i<params->G; i++){
+        params->macro_xs_a[i] = atof(s);
+        s = strtok(NULL, " \n");
+      }
+    }
+    
+    // Scattering cross section
+    else if(strcmp(s, "macro_xs_e") == 0){
+      for(i=0; i<params->G; i++){
+        s = fgets(line, sizeof(line), fp);
+        s = strtok(line, " \n");
+        for(j=0; j<params->G; j++){
+          params->macro_xs_e[i][j] = atof(s);
+          s = strtok(NULL, " \n");
+        }
+      }
+    }
+
+    else printf("Unknown value '%s' in group constants file.\n", s);
+  }
+
+  // Set remaining group constants
+  macro_xs_e = calloc(params->G, sizeof(double));
+  for(i=0; i<params->G; i++){
+    for(j=0; j<params->G; j++){
+      macro_xs_e[i] += params->macro_xs_e[i][j];
+    }
+    params->macro_xs_t[i] = params->macro_xs_f[i] + params->macro_xs_a[i] + macro_xs_e[i];
+    params->macro_xs_r[i] = params->macro_xs_t[i] - params->macro_xs_e[i][i];
+    params->D[i] = 1/(3*params->macro_xs_t[i] - params->mu*macro_xs_e[i]);
+  }
+  free(macro_xs_e);
 
   return;
 }
@@ -206,9 +318,7 @@ void print_params(Parameters *params)
   printf("Number of grid points:                %d\n", params->n_grid);
   printf("Grid spacing:                         %f\n", params->h);
   printf("Detector length:                      %f\n", params->L);
-  printf("Average cos of scattering angle:      %f\n", params->mu);
-  printf("Average number of fission neutrons:   %f\n", params->nu);
-  printf("Diffusion coefficient:                %f\n", params->D);
+  printf("Number of energy groups:              %d\n", params->G);
   printf("Maximum number of inner iterations:   %d\n", params->max_inner);
   printf("Maximum number of outer iterations:   %d\n", params->max_outer);
   printf("Stopping threshold:                   %e\n", params->thresh);
@@ -257,22 +367,27 @@ void center_print(const char *s, int width)
 }
 
 // Prints solution to file
-void write_flux(double ***phi, Parameters *params, FILE *fp)
+void write_flux(double ****phi, Parameters *params, FILE *fp)
 {
   int i, j, k;
+  double ***S;
+  double S_max;
 
+  S = matrix3D(params->n_grid, params->n_grid, params->n_grid);
+  compute_source(phi, S, params, &S_max);
   fp = fopen(params->flux_file, "w");
 
   for(i=0; i<params->n_grid; i++){
     for(j=0; j<params->n_grid; j++){
       for(k=0; k<params->n_grid; k++){
-        fprintf(fp, "%e ", phi[i][j][k]);
+        fprintf(fp, "%e ", S[i][j][k]);
       }
       fprintf(fp, "\n");
     }
   }
 
   fclose(fp);
+  free_matrix3D(S);
 
   return;
 }
