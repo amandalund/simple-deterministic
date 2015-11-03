@@ -59,7 +59,7 @@ void solve_inner(double ***phi, double ***phi0, Parameters *params, double *norm
 
   n = params->n_grid*params->n_grid*params->n_grid;
   c = params->D/(params->h*params->h);
-  d = 1/(6*c + params->macro_xs_a);
+  d = 1/(6*c + params->xs_a);
 
   for(m=0; m<params->max_inner; m++){
 
@@ -106,7 +106,7 @@ void solve_inner(double ***phi, double ***phi0, Parameters *params, double *norm
           if(t5 == FLAG) t5 = phi[i][j][k+1];
           if(t6 == FLAG) t6 = phi[i][j][k-1];
 
-          phi[i][j][k] = c*d*(t1 + t2 + t3 + t4 + t5 + t6) + d*params->nu*params->macro_xs_f/params->k*phi0[i][j][k];
+          phi[i][j][k] = c*d*(t1 + t2 + t3 + t4 + t5 + t6) + d*params->nu*params->xs_f/params->k*phi0[i][j][k];
 
           err_inner += fabs(phi[i][j][k] - phi_prev);
 

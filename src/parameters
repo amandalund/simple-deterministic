@@ -3,9 +3,9 @@
 ###################################################################
 # n_grid (-g): number of grid points in each dimension
 # h (-h): grid spacing
-# macro_xs_f (-f): fission macroscopic cross section of material
-# macro_xs_a (-a): absorption macroscopic cross section of material
-# macro_xs_e (-e): elastic macroscopic cross section of material
+# xs_f (-f): fission macroscopic cross section of material
+# xs_a (-a): absorption macroscopic cross section of material
+# xs_s (-e): elastic macroscopic cross section of material
 # mu (-m): average cos of scattering angle in scattering collision
 # nu (-n): average number of fission neutrons produced
 # bc (-c): boundary conditions (vacuum, periodic)
@@ -17,9 +17,9 @@
 ###################################################################
 n_grid=20
 h=0.5
-macro_xs_f=2.29
-macro_xs_a=3.42
-macro_xs_e=2.29
+xs_f=2.29
+xs_a=3.42
+xs_s=2.29
 mu=0.0
 nu=1.5
 bc=vacuum
