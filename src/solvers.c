@@ -74,7 +74,7 @@ void solve_inner(double ****phi, double ***S, Parameters *params, int g)
 
   n = params->n_grid*params->n_grid*params->n_grid;
   c = params->D[g]/(params->h*params->h);
-  d = 1/(6*c + params->macro_xs_r[g]);
+  d = 1/(6*c + params->xs_r[g]);
 
   for(m=0; m<params->max_inner; m++){
 
@@ -121,11 +121,11 @@ void solve_inner(double ****phi, double ***S, Parameters *params, int g)
           if(t5 == FLAG) t5 = phi[g][i][j][k+1];
           if(t6 == FLAG) t6 = phi[g][i][j][k-1];
 
-          rhs = params->nu[g]*params->macro_xs_f[g]*params->chi[g]/params->k*S[i][j][k];
+          rhs = params->nu[g]*params->xs_f[g]*params->chi[g]/params->k*S[i][j][k];
 
           // Add contribution from neutrons scattering in from higher groups
           for(f=0; f<g; f++){
-            rhs += params->macro_xs_e[f][g]*phi[f][i][j][k];
+            rhs += params->xs_s[f][g]*phi[f][i][j][k];
           }
 
           phi[g][i][j][k] = c*d*(t1 + t2 + t3 + t4 + t5 + t6) + d*rhs;

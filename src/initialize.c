@@ -45,12 +45,12 @@ double ****init_flux(Parameters *params)
 
 void free_params(Parameters *params)
 {
-  free(params->macro_xs_a);
-  free(params->macro_xs_e[0]);
-  free(params->macro_xs_e);
-  free(params->macro_xs_f);
-  free(params->macro_xs_t);
-  free(params->macro_xs_r);
+  free(params->xs_a);
+  free(params->xs_s[0]);
+  free(params->xs_s);
+  free(params->xs_f);
+  free(params->xs_t);
+  free(params->xs_r);
   free(params->D);
   free(params->nu);
   free(params->chi);

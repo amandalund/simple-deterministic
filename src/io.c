@@ -216,19 +216,19 @@ void set_group_constants(Parameters *params)
   FILE *fp = fopen(params->group_file, "r");
   int i, j;
   double *arr;
-  double *macro_xs_e;
+  double *xs_s;
 
   // Allocate memory for group constants
-  params->macro_xs_f = calloc(params->G, sizeof(double));
-  params->macro_xs_a = calloc(params->G, sizeof(double));
-  params->macro_xs_e = malloc(params->G*sizeof(double*));
+  params->xs_f = calloc(params->G, sizeof(double));
+  params->xs_a = calloc(params->G, sizeof(double));
+  params->xs_s = malloc(params->G*sizeof(double*));
   arr = calloc(params->G*params->G, sizeof(double));
   for(i=0; i<params->G; i++){
-    params->macro_xs_e[i] = arr;
+    params->xs_s[i] = arr;
     arr += params->G;
   }
-  params->macro_xs_t = calloc(params->G, sizeof(double));
-  params->macro_xs_r = calloc(params->G, sizeof(double));
+  params->xs_t = calloc(params->G, sizeof(double));
+  params->xs_r = calloc(params->G, sizeof(double));
   params->nu = calloc(params->G, sizeof(double));
   params->D = calloc(params->G, sizeof(double));
   params->chi = calloc(params->G, sizeof(double));
@@ -258,32 +258,32 @@ void set_group_constants(Parameters *params)
     }
 
     // Fission cross section
-    else if(strcmp(s, "macro_xs_f") == 0){
+    else if(strcmp(s, "xs_f") == 0){
       s = fgets(line, sizeof(line), fp);
       s = strtok(line, " \n");
       for(i=0; i<params->G; i++){
-        params->macro_xs_f[i] = atof(s);
+        params->xs_f[i] = atof(s);
         s = strtok(NULL, " \n");
       }
     }
 
     // Absorption cross section
-    else if(strcmp(s, "macro_xs_a") == 0){
+    else if(strcmp(s, "xs_a") == 0){
       s = fgets(line, sizeof(line), fp);
       s = strtok(line, " \n");
       for(i=0; i<params->G; i++){
-        params->macro_xs_a[i] = atof(s);
+        params->xs_a[i] = atof(s);
         s = strtok(NULL, " \n");
       }
     }
     
     // Scattering cross section
-    else if(strcmp(s, "macro_xs_e") == 0){
+    else if(strcmp(s, "xs_s") == 0){
       for(i=0; i<params->G; i++){
         s = fgets(line, sizeof(line), fp);
         s = strtok(line, " \n");
         for(j=0; j<params->G; j++){
-          params->macro_xs_e[i][j] = atof(s);
+          params->xs_s[i][j] = atof(s);
           s = strtok(NULL, " \n");
         }
       }
@@ -293,16 +293,16 @@ void set_group_constants(Parameters *params)
   }
 
   // Set remaining group constants
-  macro_xs_e = calloc(params->G, sizeof(double));
+  xs_s = calloc(params->G, sizeof(double));
   for(i=0; i<params->G; i++){
     for(j=0; j<params->G; j++){
-      macro_xs_e[i] += params->macro_xs_e[i][j];
+      xs_s[i] += params->xs_s[i][j];
     }
-    params->macro_xs_t[i] = params->macro_xs_f[i] + params->macro_xs_a[i] + macro_xs_e[i];
-    params->macro_xs_r[i] = params->macro_xs_t[i] - params->macro_xs_e[i][i];
-    params->D[i] = 1/(3*params->macro_xs_t[i] - params->mu*macro_xs_e[i]);
+    params->xs_t[i] = params->xs_f[i] + params->xs_a[i] + xs_s[i];
+    params->xs_r[i] = params->xs_t[i] - params->xs_s[i][i];
+    params->D[i] = 1/(3*params->xs_t[i] - params->mu*xs_s[i]);
   }
-  free(macro_xs_e);
+  free(xs_s);
 
   return;
 }

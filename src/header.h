@@ -23,11 +23,11 @@ typedef struct Parameters_{
   double L;                  // detector length
   double h;                  // grid spacing
   int G;                     // number of energy groups
-  double *macro_xs_a;        // absorption macro xs
-  double **macro_xs_e;       // scattering macro xs
-  double *macro_xs_f;        // fission macro xs
-  double *macro_xs_t;        // total macro xs
-  double *macro_xs_r;        // removal macro xs
+  double *xs_a;              // absorption macro xs
+  double **xs_s;             // scattering macro xs
+  double *xs_f;              // fission macro xs
+  double *xs_t;              // total macro xs
+  double *xs_r;              // removal macro xs
   double mu;                 // average cos of scattering angle in scattering collision
   double *D;                 // diffusion coefficient
   double *nu;                // average number of fission neutrons produced
