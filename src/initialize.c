@@ -10,7 +10,7 @@ Parameters *set_default_params(void)
   params->xs_f = 2.29;
   params->xs_a = 3.42;
   params->xs_s = 2.29;
-  params->xs_t = params->xs_f + params->xs_a + params->xs_s;
+  params->xs_t = params->xs_a + params->xs_s;
   params->mu = 0.0;
   params->nu = 1.5;
   params->k = 1.0;

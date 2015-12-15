@@ -7,7 +7,7 @@ void parse_params(char *filename, Parameters *params)
 
   while((s = fgets(line, sizeof(line), fp)) != NULL){
 
-    if(line[0] == '#') continue;
+    if(line[0] == '#' || line[0] == '\n') continue;
     s = strtok(line, "=");
     if(s == NULL) continue;
 
@@ -170,7 +170,7 @@ void read_CLI(int argc, char *argv[], Parameters *params)
 
   // Set remaining parameters
   params->L = params->h*params->n_grid;
-  params->xs_t = params->xs_f + params->xs_a + params->xs_s;
+  params->xs_t = params->xs_a + params->xs_s;
   params->D = 1/(3*params->xs_t - params->mu*params->xs_s);
   params->k = 1;
 
