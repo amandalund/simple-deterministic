@@ -7,7 +7,7 @@ void parse_params(char *filename, Parameters *params)
 
   while((s = fgets(line, sizeof(line), fp)) != NULL){
 
-    if(line[0] == '#') continue;
+    if(line[0] == '#' || line[0] == '\n') continue;
     s = strtok(line, "=");
     if(s == NULL) continue;
 
@@ -298,7 +298,8 @@ void set_group_constants(Parameters *params)
     for(j=0; j<params->G; j++){
       xs_s[i] += params->xs_s[i][j];
     }
-    params->xs_t[i] = params->xs_f[i] + params->xs_a[i] + xs_s[i];
+    //params->xs_t[i] = params->xs_f[i] + params->xs_a[i] + xs_s[i];
+    params->xs_t[i] = params->xs_a[i] + xs_s[i];
     params->xs_r[i] = params->xs_t[i] - params->xs_s[i][i];
     params->D[i] = 1/(3*params->xs_t[i] - params->mu*xs_s[i]);
   }

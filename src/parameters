@@ -1,26 +1,36 @@
 ###################################################################
-# Deterministic transport parameters
+# SIMPLE-DETERMINISTIC INPUT PARAMETERS
 ###################################################################
+
 # n_grid (-g): number of grid points in each dimension
+n_grid=16
+
 # h (-h): grid spacing
+h=25
+
 # groups (-e): number of energy groups
+groups=1
+
 # mu (-m): average cos of scattering angle in scattering collision
-# bc (-c): boundary conditions (vacuum, periodic)
-# max_inner (-i): maximum number of inner iterations
-# max_outer (-o): maximum number of outer iterations
-# thresh (-t): stopping condition
-# write_flux (-w): whether to write solution (true or false)
-# flux_file (-p): path to write solution to
-# group_file (-q): path to read group constants from
-###################################################################
-n_grid=10
-h=1
-groups=2
 mu=0.0
-bc=vacuum
+
+# bc (-c): boundary conditions (vacuum, periodic)
+bc=periodic
+
+# max_inner (-i): maximum number of inner iterations
 max_inner=10000
+
+# max_outer (-o): maximum number of outer iterations
 max_outer=10000
+
+# thresh (-t): stopping condition
 thresh=0.0000001
+
+# write_flux (-w): whether to write solution (true or false)
 write_flux=false
+
+# flux_file (-p): path to write solution to
 flux_file=flux.dat
+
+# group_file (-q): path to read group constants from
 group_file=group_constants
